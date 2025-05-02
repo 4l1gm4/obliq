@@ -1,6 +1,5 @@
 from enum import Enum
 from fastapi import FastAPI, status
-from fastapi.routing import Scope, deprecated
 from pydantic import BaseModel
 import secrets
 from passlib.context import CryptContext
