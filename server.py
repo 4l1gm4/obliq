@@ -6,13 +6,12 @@ from passlib.context import CryptContext
 import uuid
 
 app = FastAPI()
-
-app.get("/health", status_code=status.HTTP_200_OK)
 pass_context = CryptContext(schemes=["bcrypt"], deprecated=["auto"])
 
 
+@app.get("/health", status_code=status.HTTP_200_OK)
 async def health():
-    return {"service_name": "obliq", status: "up"}
+    return {"service_name": "obliq", "status": "up"}
 
 
 # register endpoint : allow an app to register in the database, get the clientid and clientsecr
