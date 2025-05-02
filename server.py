@@ -1,13 +1,15 @@
 from enum import Enum
 from fastapi import FastAPI, status
-from fastapi.routing import Scope
+from fastapi.routing import Scope, deprecated
 from pydantic import BaseModel
 import secrets
-
+from passlib.context import CryptContext
+import uuid
 
 app = FastAPI()
 
 app.get("/health", status_code=status.HTTP_200_OK)
+pass_context = CryptContext(schemes=["bcrypt"], deprecated=["auto"])
 
 
 async def health():
@@ -52,8 +54,8 @@ class Application(BaseModel):
 async def register(application: ApplicationRegistrationRequest):
 
     # generate a clientid and client_secre
-    client_id = secrets.token_urlsafe(16)
-    client_secret = secrets.token_urlsafe(32)
+    client_id = str(uuid.uuid4())
+    client_secret = pass_context.hash(secrets.token_urlsafe(32))
 
     application_client: Application = Application(
         name=application.name,
