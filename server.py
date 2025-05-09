@@ -1,5 +1,5 @@
 from enum import Enum
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 import secrets
 from passlib.context import CryptContext
@@ -65,9 +65,39 @@ async def register(application: ApplicationRegistrationRequest):
         token_endpoint_auth_method=application.token_endpoint_auth_method,
     )
 
-    database[application.name] = application
-
+    database[application.name] = application_client
     return application_client
+
+
+@app.get("/applications")
+async def get_all_applications():
+    return database
+
+
+@app.post("/token")
+async def get_token(client_id: str, client_secret: str, grant_type: str):
+    print(
+        f"{client_id}, {client_secret}, grant_types:{grant_type}, {await is_app_exists(client_id, client_secret)}"
+    )
+    if grant_type == "client_credentials":
+        if (
+            not client_id
+            or not client_secret
+            or await is_app_exists(client_id, client_secret)
+        ):
+
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid credentials"
+            )
+    return "this is a dummy token"
+
+
+async def is_app_exists(client_id: str, client_secret: str) -> bool:
+    for app in database:
+        if app["client_id"] == client_id and app["client_secret"] == client_secret:
+            return True
+
+    return False
 
 
 if __name__ == "__main__":
